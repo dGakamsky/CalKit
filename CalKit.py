@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 
 
-
 def popupmsg(msg):
     popup = tk.Tk()
     popup.wm_title("!")
@@ -21,20 +20,22 @@ def popupmsg(msg):
 
 
 def plotck(mat):
-    x = []
-    y = []
     plt.figure()
-    end = mat.x_end
-    start = mat.x_start
-    step = mat.step
-    steps = int((end - start) / step)  # determines the number of data-points
-    x = np.linspace(mat.x_start, mat.x_end,
-                    num=steps)  # extrapolates the X axis based on the start, stop and number of data-points
-    try:
-        y = mat.spline(x)  # gets the Y axis data
-    except:
-        popupmsg("This calibration kit does not have a scan of the selected type stored")
-    plt.plot(x, y)  # plots it
+    for i in range(len(mat.spline)):
+        x = []
+        y = []
+        end = mat.x_end[i]
+        start = mat.x_start[i]
+        step = mat.step
+        steps = int((end - start) / step)  # determines the number of data-points
+        x = np.linspace(mat.x_start, mat.x_end,
+                        num=steps)  # extrapolates the X axis based on the start, stop and number of data-points
+        try:
+            spl = mat.spline[i]
+            y = spl(x)  # gets the Y axis data
+            plt.plot(x, y)  # plots it
+        except TypeError:
+            popupmsg("This calibration kit does not have a scan of the selected type stored")
     plt.show()
 
 
@@ -58,10 +59,12 @@ class CalKit:
         read = Reader.scan_to_dict(filename)
         spl = datamaths.getspline(read)  # creates a spline object based on the data
         # passes the spline into the appropriate type of Material
-        if m == "t":
-            self.t.spline = spl
-        if m == "d":
-            self.d.spline = spl
+        for i in range(len(spl)):
+            if m == "t":
+                print(spl)
+                self.t.spline = spl[i]
+            if m == "d":
+                self.d.spline = spl[i]
 
     # function that plots the data in a material passed in as parameter
 
@@ -93,4 +96,3 @@ class CalKit:
         # prints the data in procedurally
         for i in range(len(x)):
             file.write(str(x[i]) + "/s" + str(y[i]) + "\n")
-

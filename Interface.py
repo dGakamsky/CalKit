@@ -1,13 +1,9 @@
 # the UI responsible for the file reader
-from tkinter import *
-import tkinter as tk
 import tkinter.messagebox
-import matplotlib.pyplot as plt
 from tkfilebrowser import askopenfilename
+from tkinter import *
 from CalKit import CalKit, plotck
 from Library import Library
-import pickle
-
 
 # retrieves the list of Calibration Kits (ck's) from the library
 def load_ck_list(lib):
@@ -15,7 +11,7 @@ def load_ck_list(lib):
 
 
 # saves to the .pkl file, functions via append
-def save_file(library, ck, name):
+def save_file(library, ck):
     # sets the kit name to the name passed in (self.name), this is to make sure the file is saved with a name
     # ck.name = name
     print(type(ck))  # for testing
@@ -34,6 +30,10 @@ class App:
     def __init__(self, master):
         # instantiates the library
         self.value_inside = tkinter.StringVar(root)
+        #self.namelabel = tkinter.StringVar(root)
+        #self.namelabel.set("No label selected")
+        #self.textlabel = tkinter.label(master, texvariable=self.namelabel)
+        #self.textlabel.pack()
         self.lib = Library()
         self.kit = CalKit()
         self.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
@@ -78,8 +78,7 @@ class App:
         self.c = tkinter.Button(master, text="save file",
                                 state=DISABLED,
                                 command=lambda: save_file(
-                                    self.lib, self.kit,
-                                    self.name))  # saves the file to the .pkl file given the input parameters
+                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
         self.c.pack()
         question_menu = tkinter.OptionMenu(master, self.value_inside, *self.cklist)
         question_menu.pack()
@@ -120,7 +119,7 @@ class App:
         self.kit = library[self.name]
         self.kit.t = library[self.name].t
         self.kit.d = library[self.name].d
-        # plots the selected kits data if apropriate
+        # plots the selected kits data if appropriate
         if self.type == "t":
             plotck(library[self.name].t)
         if self.type == "d":
@@ -159,6 +158,9 @@ class App:
             library[self.name].print_to_file(library[self.name].t)
         if self.type == "d":
             library[self.name].print_to_file(library[self.name].d)
+
+    def changetext(self):
+        self.namelabel.set(self.name)
 
 
 # where everything is called from

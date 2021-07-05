@@ -61,8 +61,7 @@ def read_data(file, scans, x_axis_list, y_axis_list, dictionary):
                 y_axis_list[i].append(float(column[1 + j]))
 
     for j in range(scans):
-        i = j
-        data_list.append([x_axis_list[i], y_axis_list[i]])
+        data_list.append([x_axis_list[j], y_axis_list[j]])
     dictionary["data"] = data_list
     return dictionary
 

@@ -90,6 +90,7 @@ def getscans(fn, x_axis_list, y_axis_list):
     return scans, checklist
 
 
+# reads a line of the file provided into the dictionary
 def linetodict(f, dictionary, scans):
     line = f.readline()
     line = line.strip()
@@ -97,10 +98,11 @@ def linetodict(f, dictionary, scans):
     line_data = []
     for i in range(scans):
         line_data.append(column[1 + i])
-        dictionary[column[0]] = line_data
+    dictionary[column[0]] = line_data
     return dictionary
 
 
+# returns the length of the title (not the header, the elements that do not contain useful data)
 def get_title_length(f, checklist):
     title_length = 0
     for line in f.readlines():

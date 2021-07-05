@@ -1,11 +1,10 @@
-# class that stores the low level data, the actual numbers
 class Material:
 
     # has a type
     def __init__(self, t):
         self._spline = None
-        self._x_start = None
-        self._x_end = None
+        self._x_start = 0
+        self._x_end = 0
         self._step = 1  # step size is 1 by default
         self._type = t
         self._date = None
@@ -65,3 +64,5 @@ class Material:
         print(self.spline)
         print(self.x_start)
         print(self.x_end)
+
+

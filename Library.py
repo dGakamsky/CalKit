@@ -21,10 +21,15 @@ class Library:
     def get_ck_list(self):
         ck_list = []  # list within which the calibration kits are stored
         with open("cklib.pkl", "rb") as openfile:
-            lib = pickle.load(openfile)  # reads the library stored within the file
-            for key, item in lib.items():  # reads through the library (its a dictionary class object)
-                self.library = item  # gets the "data" part of the dictionary and adds it into the usable library
-                ck_list.append(item)  # adds the item to the list of stored calkits
+            while True:
+                try:
+                    lib = pickle.load(openfile)  # reads the library stored within the file
+                    for key, item in lib.items():  # reads through the library (its a dictionary class object)
+                        self.library = item  # gets the "data" part of the dictionary and adds it into the usable
+                        # library
+                        ck_list.append(item)  # adds the item to the list of stored calkits
+                except EOFError:
+                    break
         return ck_list  # returns a list containing the un-pickled calibration kits
 
     # dumps the library to the .pkl

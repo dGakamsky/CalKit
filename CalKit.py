@@ -3,10 +3,11 @@
 # "subcontractor" of interface for the purpose of getting the data from a file
 import Reader
 import datamaths
-import Material
+from material import Material
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
+
 
 
 def popupmsg(msg):
@@ -41,8 +42,8 @@ class CalKit:
 
     def __init__(self):
         self._name = ""
-        self.d = Material.Material("d")
-        self.t = Material.Material("t")
+        self.d = Material("d")
+        self.t = Material("t")
 
     @property
     def name(self):
@@ -53,13 +54,13 @@ class CalKit:
         self._name = n
 
     # receives a filename and type when called, then passes that onto a reader which returns data
-    def add_scan(self, filename, t):
+    def add_scan(self, filename, m):
         read = Reader.scan_to_dict(filename)
         spl = datamaths.getspline(read)  # creates a spline object based on the data
         # passes the spline into the appropriate type of Material
-        if t == "t":
+        if m == "t":
             self.t.spline = spl
-        if t == "d":
+        if m == "d":
             self.d.spline = spl
 
     # function that plots the data in a material passed in as parameter

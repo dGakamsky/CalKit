@@ -4,12 +4,6 @@ import numpy as np
 from scipy.interpolate import UnivariateSpline
 
 
-# "subcontractor" of Calkit, returns dictionary
-def read(filename):
-    filecontent = scan_to_dict(filename)
-    return filecontent
-
-
 # generates a univariate spline
 def getspline(data):
     x = data["data"][0][0]

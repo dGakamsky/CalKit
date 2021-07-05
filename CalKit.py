@@ -93,3 +93,4 @@ class CalKit:
         # prints the data in procedurally
         for i in range(len(x)):
             file.write(str(x[i]) + "/s" + str(y[i]) + "\n")
+

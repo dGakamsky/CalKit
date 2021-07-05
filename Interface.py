@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.messagebox
 import matplotlib.pyplot as plt
 from tkfilebrowser import askopenfilename
-from CalKit import CalKit
+from CalKit import CalKit, plotck
 from Library import Library
 import pickle
 
@@ -122,9 +122,9 @@ class App:
         self.kit.d = library[self.name].d
         # plots the selected kits data if apropriate
         if self.type == "t":
-            library[self.name].plotck(library[self.name].t)
+            plotck(library[self.name].t)
         if self.type == "d":
-            library[self.name].plotck(library[self.name].d)
+            plotck(library[self.name].d)
         return self.name, self.kit  # returns the kit
 
     # returns input text
@@ -145,9 +145,9 @@ class App:
         if self.type == "t":
             kit.add_scan(filename, "t")
         if self.type == "d":  # has the kit plot the material corresponding to the type
-            kit.plotck(kit.d)
+            plotck(kit.d)
         if self.type == "t":
-            kit.plotck(kit.t)
+            plotck(kit.t)
         # checks whether or not to enable saving the file
         if self.type != "" and self.name != "":
             self.c["state"] = NORMAL

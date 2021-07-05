@@ -1,10 +1,9 @@
+# this method turns the data in a given input file into a dictionary where the key is the first entry in a line for
+# the header, and "data" for the numerical data
 import os
 import re
 from detect_delimiter import detect
 
-
-# this method turns the data in a given input file into a dictionary where the key is the first entry in a line for
-# the header, and "data" for the numerical data
 
 # takes a filename as input
 def scan_to_dict(fn):

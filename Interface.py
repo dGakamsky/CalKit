@@ -30,10 +30,10 @@ class App:
     def __init__(self, master):
         # instantiates the library
         self.value_inside = tkinter.StringVar(root)
-        #self.namelabel = tkinter.StringVar(root)
-        #self.namelabel.set("No label selected")
-        #self.textlabel = tkinter.label(master, texvariable=self.namelabel)
-        #self.textlabel.pack()
+        self.namelabel = tkinter.StringVar(root)
+        self.namelabel.set("No kit name selected")
+        self.textlabel = tkinter.Label(master, textvariable=self.namelabel)
+        self.textlabel.pack()
         self.lib = Library()
         self.kit = CalKit()
         self.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
@@ -113,6 +113,7 @@ class App:
     def select_existing_file(self, lib):
         self.name = self.value_inside.get()  # sets the name of the current kit to the selected kit
         print(self.name)  # for validation
+        self.changetext()
         library = lib.library
         print(library)  # fpr validation
         # Sets the current kit data equal to the kit data from the selected kit
@@ -131,7 +132,8 @@ class App:
         self.name = e.get()
         print("Name set to: " + self.name)  # print is for validation
         if self.filename != "" and self.type != "":
-            self.c["state"] = NORMAL
+            self.b2["state"] = NORMAL
+        self.changetext()
         return self.name
 
     # gets passed the filename, library, name and the current kit and populates and adds the scan onto the library
@@ -160,7 +162,7 @@ class App:
             library[self.name].print_to_file(library[self.name].d)
 
     def changetext(self):
-        self.namelabel.set(self.name)
+        self.namelabel.set("current kit name: "+self.name)
 
 
 # where everything is called from

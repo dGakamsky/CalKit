@@ -1,4 +1,4 @@
-class Material:
+class Lamp_Material:
 
     # has a type
     def __init__(self, t):

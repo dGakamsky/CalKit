@@ -1,5 +1,4 @@
 # the mathematical operations happen here
-from Reader import scan_to_dict
 import numpy as np
 from scipy.interpolate import UnivariateSpline
 

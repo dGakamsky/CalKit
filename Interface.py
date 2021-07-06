@@ -5,6 +5,7 @@ from tkinter import *
 from CalKit import CalKit, plotck
 from Library import Library
 
+
 # retrieves the list of Calibration Kits (ck's) from the library
 def load_ck_list(lib):
     return lib.get_ck_list()
@@ -162,9 +163,182 @@ class App:
             library[self.name].print_to_file(library[self.name].d)
 
     def changetext(self):
-        self.namelabel.set("current kit name: "+self.name)
+        self.namelabel.set("current kit name: " + self.name)
+
+
+class StartUi:
+    lib = Library()
+    kit = CalKit()
+    name = ""
+    filename = ""
+    type = ""
+    namelabel = None
+
+    def __init__(self, master):
+        self.master = master
+        self.master.geometry("500x500")
+        self.show_page_widgets()
+        self.value_inside = tkinter.StringVar(root)
+        self.namelabel = tkinter.StringVar()
+        self.namelabel.set("No kit name selected")
+        self.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
+        if self.lib.get_ck_list():
+            self.cklist = []  # removes the placeholder value
+            for i in self.lib.get_ck_list():  # populates the dropdown
+                self.cklist.append(i.name)
+                i.print()
+        # creates the "box" for the ui
+        self.window = master
+        # Dictionary to create multiple buttons
+        root.title("CalKit Calibration")
+        load_ck_list(self.lib)  # loads the list of stored calkits
+
+    def show_page_widgets(self):
+        self.frame = tkinter.Frame(self.master)
+        self.master.title("Calibration Kit Interface")
+        self.create_button("Create  new Calibration Kit", NewKitUi)
+        self.create_button("Update Existing Calibration Kit", LoadKitUi)
+        self.create_button("Export existing Calibration kit", SaveKitUi)
+        self.frame.pack()
+
+    def create_button(self, text, _class):
+        "Button that creates a new window"
+        tkinter.Button(
+            self.frame, text=text,
+            command=lambda: self.new_window(_class)).pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
+
+    def new_window(self, _class):
+        self.win = tkinter.Toplevel(self.master)
+        _class(self.win)
+
+    def set_type(self, t):
+        self.type = t
+        return self.type
+
+    def changetext(self):
+        self.namelabel.set("current kit name: " + self.name)
+
+
+class NewKitUi(StartUi):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.master.title("Load New Calkit")
+        self.master.geometry("500x500")
+
+    def show_page_widgets(self):
+        self.frame = tkinter.Frame(self.master)
+        self.frame.label = tkinter.Label(self.master, textvariable=StartUi.namelabel)
+        self.frame.label.pack()
+        self.quit_button = tkinter.Button(
+            self.frame, text="close window",
+            command=self.close_window)
+        v = tkinter.StringVar(self.master, "1")
+        tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
+                            command=lambda: StartUi.set_type(self.master, "d")).pack()
+        tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
+                            command=lambda: StartUi.set_type(self.master, "t")).pack()
+        b = tkinter.Button(self.master, text="browse files",
+                           command=lambda: StartUi.open_file_browser())  # searches files for input file
+        b.pack()
+        self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
+                                 command=lambda: StartUi.open_file(self.filename, self.name, self.kit))  # reads
+        # the file
+        self.b2.pack()
+        # text entry box
+        e = tkinter.Entry(self.master)
+        e.pack()
+        e.focus_set()
+        f = tkinter.Button(self.master, text="save text", command=lambda: self.callback(e))  # name input
+        f.pack()
+        self.c = tkinter.Button(self.master, text="save file",
+                                state=DISABLED,
+                                command=lambda: save_file(
+                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
+        self.c.pack()
+        self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
+        self.frame.pack()
+
+    def close_window(self):
+        self.master.destroy()
+
+    def callback(self, e):
+        StartUi.name = e.get()
+        print("Name set to: " + self.name)  # print is for validation
+        if self.filename != "" and self.type != "":
+            self.b2["state"] = NORMAL
+        StartUi.changetext(self.master)
+        return self.name
+
+
+class LoadKitUi(StartUi):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.master.title("Load Calibration Kit")
+        self.master.geometry("500x500")
+
+    def show_page_widgets(self):
+        "A frame with a button to quit the window"
+        self.frame = tkinter.Frame(self.master)
+        self.frame.label = tkinter.Label(self.master, textvariable=StartUi.namelabel)
+        self.frame.label.pack()
+        self.quit_button = tkinter.Button(
+            self.frame, text="close window",
+            command=self.close_window)
+        v = tkinter.StringVar(self.master, "1")
+        tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
+                            command=lambda: StartUi.set_type(self.master, "d")).pack()
+        tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
+                            command=lambda: StartUi.set_type(self.master, "t")).pack()
+        b = tkinter.Button(self.master, text="browse files",
+                           command=lambda: StartUi.open_file_browser())  # searches files for input file
+        b.pack()
+        self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
+                                 command=lambda: StartUi.open_file(self.filename, self.name, self.kit))  # reads
+        # the file
+        self.b2.pack()
+        # text entry box
+        e = tkinter.Entry(self.master)
+        e.pack()
+        e.focus_set()
+        f = tkinter.Button(self.master, text="save text", command=lambda: self.callback(e))  # name input
+        f.pack()
+        self.c = tkinter.Button(self.master, text="save file",
+                                state=DISABLED,
+                                command=lambda: save_file(
+                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
+        self.c.pack()
+        self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
+        self.frame.pack()
+
+
+    def close_window(self):
+        self.master.destroy()
+
+
+
+class SaveKitUi(StartUi):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.master.title("Save Calibration Kit to file")
+        self.master.geometry("500x500")
+
+    def show_page_widgets(self):
+        "A frame with a button to quit the window"
+        self.frame = tkinter.Frame(self.master, bg="red")
+        self.quit_button = tkinter.Button(
+            self.frame, text=f"Quit this window n. 2",
+            command=self.close_window)
+        self.quit_button.pack()
+        self.frame.pack()
+
+    def close_window(self):
+        self.master.destroy()
 
 
 # where everything is called from
 root = tkinter.Tk()
-app = App(root)
+app = StartUi(root)
+root.mainloop()

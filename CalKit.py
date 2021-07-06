@@ -3,7 +3,7 @@
 # "subcontractor" of interface for the purpose of getting the data from a file
 import Reader
 import datamaths
-from material import Material
+from material import Lamp_Material
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -43,8 +43,8 @@ class CalKit:
 
     def __init__(self):
         self._name = ""
-        self.d = Material("d")
-        self.t = Material("t")
+        self.d = Lamp_Material("d")
+        self.t = Lamp_Material("t")
 
     @property
     def name(self):

@@ -165,6 +165,7 @@ class App:
 
 
 class StartUi:
+    cklist = []
     lib = Library()
     namelabel = ""
 
@@ -172,20 +173,24 @@ class StartUi:
         self.master = master
         self.master.geometry("500x500")
         self.show_page_widgets()
-        self.value_inside = tkinter.StringVar(root)
         self.namelabel = tkinter.StringVar()
         self.namelabel.set("No kit name selected")
-        self.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
-        if self.lib.get_ck_list():
-            self.cklist = []  # removes the placeholder value
-            for i in self.lib.get_ck_list():  # populates the dropdown
-                self.cklist.append(i.name)
-                i.print()
+        self.populatecklist()
+        print(StartUi.cklist)
         # creates the "box" for the ui
         self.window = master
         # Dictionary to create multiple buttons
         root.title("CalKit Calibration")
         load_ck_list(self.lib)  # loads the list of stored calkits
+
+    def populatecklist(self):
+        StartUi.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
+        if self.lib.get_ck_list():
+            StartUi.cklist = []  # removes the placeholder value
+            for i in self.lib.get_ck_list():  # populates the dropdown
+                StartUi.cklist.append(i.name)
+                i.print()
+        return StartUi.cklist
 
     def show_page_widgets(self):
         self.frame = tkinter.Frame(self.master)
@@ -312,63 +317,214 @@ class LoadKitUi(StartUi):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
-        self.master.title("Load Calibration Kit")
+        self.master.title("Load New Calkit")
         self.master.geometry("500x500")
+        self.namelabel = ""
+        self.namelabel = tkinter.StringVar()
+        self.namelabel.set("No kit name selected")
+        self.kit = CalKit()
+        self.name = ""
+        self.filename = ""
+        self.type = ""
+
 
     def show_page_widgets(self):
         "A frame with a button to quit the window"
+        self.value_inside = tkinter.StringVar(root)
         self.frame = tkinter.Frame(self.master)
         self.frame.label = tkinter.Label(self.master, textvariable=StartUi.namelabel)
-        self.frame.label.pack()
+        self.frame.label.grid()
         self.quit_button = tkinter.Button(
             self.frame, text="close window",
             command=self.close_window)
         v = tkinter.StringVar(self.master, "1")
         tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
-                            command=lambda: StartUi.set_type(self.master, "d")).pack()
+                            command=lambda: self.set_type("d")).grid()
         tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
-                            command=lambda: StartUi.set_type(self.master, "t")).pack()
+                            command=lambda: self.set_type("t")).grid()
         b = tkinter.Button(self.master, text="browse files",
-                           command=lambda: StartUi.open_file_browser())  # searches files for input file
-        b.pack()
+                           command=lambda: self.open_file_browser())  # searches files for input file
+        b.grid()
         self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
-                                 command=lambda: StartUi.open_file(self.filename, self.name, self.kit))  # reads
+                                 command=lambda: self.open_file(self.filename, self.name, self.kit))  # reads
         # the file
-        self.b2.pack()
-
-        question_menu = tkinter.OptionMenu(self.master, StartUi.value_inside, *self.master.cklist)
-        question_menu.pack()
+        self.b2.grid()
+        options = StartUi.cklist
+        print(options)
+        if not options:
+            options = ["empty"]
+        question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
+        question_menu.grid()
+        submit_button = tkinter.Button(self.master, text='Submit', command=lambda: self.select_existing_file(StartUi.lib))
+        submit_button.grid()
         self.c = tkinter.Button(self.master, text="save file",
                                 state=DISABLED,
                                 command=lambda: save_file(
                                     self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
-        self.c.pack()
+        self.c.grid()
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
-        self.frame.pack()
+        self.frame.grid()
 
     def close_window(self):
         self.master.destroy()
 
+    def open_file(self, filename, name, kit):
+        kit.name = name  # sets the name
+        # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
+        # type in
+        if self.type == "d":  # sets the type of the scan
+            kit.add_scan(filename, "d")
+        if self.type == "t":
+            kit.add_scan(filename, "t")
+        if self.type == "d":  # has the kit plot the material corresponding to the type
+            plotck(kit.d)
+        if self.type == "t":
+            plotck(kit.t)
+        # checks whether or not to enable saving the file
+        if self.type != "" and self.name != "":
+            self.c["state"] = NORMAL
+
+    def set_type(self, t):
+        self.type = t
+        # checks for the presence of a name and filename, and if found enables loading the scandata
+        if self.name != "" and self.filename != "":
+            self.b2["state"] = NORMAL
+        return self.type
+
+    def open_file_browser(self):
+        filename = askopenfilename(initialdir="/Users/David/PycharmProjects/CalKit",
+                                   title="Select file",
+                                   filetypes=(("text files", "*.txt"),
+                                              ("all files", "*.*")))
+        if filename != "":  # if a file is selected then the filename property is set to it
+            self.filename = filename
+            return filename
+
+    # the command that responds to the dropdown menu
+    def select_existing_file(self, lib):
+        self.name = self.value_inside.get()  # sets the name of the current kit to the selected kit
+        print(self.name)  # for validation
+        self.changetext()
+        library = lib.library
+        print(library)  # fpr validation
+        # Sets the current kit data equal to the kit data from the selected kit
+        self.kit = library[self.name]
+        self.kit.t = library[self.name].t
+        self.kit.d = library[self.name].d
+        # plots the selected kits data if appropriate
+        if self.type == "t":
+            plotck(library[self.name].t)
+        if self.type == "d":
+            plotck(library[self.name].d)
+        return self.name, self.kit  # returns the kit
+
+    def changetext(self):
+        self.namelabel.set("current kit name: " + self.name)
 
 class SaveKitUi(StartUi):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
-        self.master.title("Save Calibration Kit to file")
+        self.master.title("Save Calkit Scan")
         self.master.geometry("500x500")
+        self.namelabel = ""
+        self.namelabel = tkinter.StringVar()
+        self.namelabel.set("No kit name selected")
+        self.kit = CalKit()
+        self.name = ""
+        self.filename = ""
+        self.type = ""
+
 
     def show_page_widgets(self):
         "A frame with a button to quit the window"
-        self.frame = tkinter.Frame(self.master, bg="red")
+        self.value_inside = tkinter.StringVar(root)
+        self.frame = tkinter.Frame(self.master)
+        self.frame.label = tkinter.Label(self.master, textvariable=StartUi.namelabel)
+        self.frame.label.grid()
         self.quit_button = tkinter.Button(
-            self.frame, text=f"Quit this window n. 2",
+            self.frame, text="close window",
             command=self.close_window)
-        self.quit_button.pack()
-        self.frame.pack()
+        v = tkinter.StringVar(self.master, "1")
+        tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
+                            command=lambda: self.set_type("d")).grid()
+        tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
+                            command=lambda: self.set_type("t")).grid()
+        self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
+                                 command=lambda: self.open_file(self.filename, self.name, self.kit))  # reads
+        # the file
+        self.b2.grid()
+        options = StartUi.cklist
+        print(options)
+        if not options:
+            options = ["empty"]
+        question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
+        question_menu.grid()
+        submit_button = tkinter.Button(self.master, text='Submit', command=lambda: self.select_existing_file(StartUi.lib))
+        submit_button.grid()
+        self.c = tkinter.Button(self.master, text="save file",
+                                state=DISABLED,
+                                command=lambda: save_file(
+                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
+        self.c.grid()
+        export_button = tkinter.Button(self.master, text="export", command=lambda: self.export_file(StartUi.lib))
+        export_button.grid()
+        self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
+        self.frame.grid()
 
     def close_window(self):
         self.master.destroy()
 
+    def open_file(self, filename, name, kit):
+        kit.name = name  # sets the name
+        # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
+        # type in
+        if self.type == "d":  # sets the type of the scan
+            kit.add_scan(filename, "d")
+        if self.type == "t":
+            kit.add_scan(filename, "t")
+        if self.type == "d":  # has the kit plot the material corresponding to the type
+            plotck(kit.d)
+        if self.type == "t":
+            plotck(kit.t)
+        # checks whether or not to enable saving the file
+        if self.type != "" and self.name != "":
+            self.c["state"] = NORMAL
+
+    def set_type(self, t):
+        self.type = t
+        # checks for the presence of a name and filename, and if found enables loading the scandata
+        if self.name != "" and self.filename != "":
+            self.b2["state"] = NORMAL
+        return self.type
+
+    # the command that responds to the dropdown menu
+    def select_existing_file(self, lib):
+        self.name = self.value_inside.get()  # sets the name of the current kit to the selected kit
+        print(self.name)  # for validation
+        self.changetext()
+        library = lib.library
+        print(library)  # fpr validation
+        # Sets the current kit data equal to the kit data from the selected kit
+        self.kit = library[self.name]
+        self.kit.t = library[self.name].t
+        self.kit.d = library[self.name].d
+        # plots the selected kits data if appropriate
+        if self.type == "t":
+            plotck(library[self.name].t)
+        if self.type == "d":
+            plotck(library[self.name].d)
+        return self.name, self.kit  # returns the kit
+
+    def changetext(self):
+        self.namelabel.set("current kit name: " + self.name)
+
+    def export_file(self, lib):
+        library = lib.library
+        if self.type == "t":
+            library[self.name].print_to_file(library[self.name].t)
+        if self.type == "d":
+            library[self.name].print_to_file(library[self.name].d)
 
 # where everything is called from
 root = tkinter.Tk()

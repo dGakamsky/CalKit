@@ -228,31 +228,38 @@ class NewKitUi(StartUi):
             self.frame, text="close window",
             command=self.close_window)
         v = tkinter.StringVar(self.master, "1")
-        tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
-                            command=lambda: self.set_type("d")).grid(row=1,column=2)
-        tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
-                            command=lambda: self.set_type("t")).grid(row=1,column=5)
+        label = tkinter.Label(self.master, text="Type of lamp material :").grid(row=1, column=0, sticky=W,
+                                                                                padx=10, pady=10, ipadx=5, ipady=5)
+        tkinter.Radiobutton(self.master, text="Deuterium", variable=v, value="d",
+                            command=lambda: self.set_type("d")).grid(row=1, column=1,
+                                                                     padx=10, pady=10, ipadx=5, ipady=5)
+        tkinter.Radiobutton(self.master, text="Tungsten", variable=v, value="t",
+                            command=lambda: self.set_type("t")).grid(row=1, column=2,
+                                                                     padx=10, pady=10, ipadx=5, ipady=5)
         b = tkinter.Button(self.master, text="browse files",
                            command=lambda: self.open_file_browser())  # searches files for input file
-        b.grid(column=4)
+        b.grid(row=2, column=1, ipadx=5, ipady=5)
         self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
                                  command=lambda: self.open_file(self.filename, self.name,
                                                                 self.kit))  # reads
         # the file
-        self.b2.grid(column=4)
+        self.b2.grid(row=2, column=2, ipadx=5, ipady=5)
         # text entry box
+        label = tkinter.Label(self.master, text="Enter name of calibration kit:").grid(row=3, column=0, sticky=W,
+                                                                                       padx=10, pady=10, ipadx=5,
+                                                                                       ipady=5)
         e = tkinter.Entry(self.master)
-        e.grid(column=4)
+        e.grid(row=3, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         e.focus_set()
         f = tkinter.Button(self.master, text="save text", command=lambda: self.callback(e))  # name input
-        f.grid(column=4)
+        f.grid(row=3, column=2, ipadx=5, ipady=5)
         self.c = tkinter.Button(self.master, text="save file",
                                 state=DISABLED,
                                 command=lambda: save_file(StartUi.lib, self.kit))  # saves the file to the .pkl file
         # given
-        self.c.grid(column=4)
+        self.c.grid(row=4, column=1, pady=50, ipadx=5, ipady=5)
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
-        self.frame.grid(column=4)
+        self.frame.grid(row=5, column=1)
 
     def close_window(self):
         self.master.destroy()

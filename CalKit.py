@@ -89,10 +89,16 @@ class CalKit:
         end = mat.x_end
         start = mat.x_start
         step = mat.step
-        steps = int((end - start) / step)
-        x = np.linspace(mat.x_start, mat.x_end,
+        steps = int((end[0] - start[0]) / step)
+        x = np.linspace(mat.x_start[0], mat.x_end[0],
                         num=steps)
-        y = mat.spline(x)
+        for i in range(len(mat.spline)) :
+            spl = mat.spline[i]
+            y = []
+            y.append(spl(x))
         # prints the data in procedurally
         for i in range(len(x)):
-            file.write(str(x[i]) + "/s" + str(y[i]) + "\n")
+            file.write(str(x[i]) + "/s")
+            for j in range(len(y)):
+                file.write(str(y[j]) + "/s")
+            file.write("/n")

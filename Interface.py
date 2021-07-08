@@ -450,46 +450,20 @@ class SaveKitUi(StartUi):
                             command=lambda: self.set_type("d")).grid()
         tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
                             command=lambda: self.set_type("t")).grid()
-        self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
-                                 command=lambda: self.open_file(self.filename, self.name, self.kit))  # reads
-        # the file
-        self.b2.grid()
         options = StartUi.cklist
-        print(options)
         if not options:
             options = ["empty"]
         question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
         question_menu.grid()
         submit_button = tkinter.Button(self.master, text='Submit', command=lambda: self.select_existing_file(StartUi.lib))
         submit_button.grid()
-        self.c = tkinter.Button(self.master, text="save file",
-                                state=DISABLED,
-                                command=lambda: save_file(
-                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
-        self.c.grid()
-        export_button = tkinter.Button(self.master, text="export", command=lambda: self.export_file(StartUi.lib))
+        export_button = tkinter.Button(self.master, text="export file", command=lambda: self.export_file(StartUi.lib))
         export_button.grid()
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
         self.frame.grid()
 
     def close_window(self):
         self.master.destroy()
-
-    def open_file(self, filename, name, kit):
-        kit.name = name  # sets the name
-        # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
-        # type in
-        if self.type == "d":  # sets the type of the scan
-            kit.add_scan(filename, "d")
-        if self.type == "t":
-            kit.add_scan(filename, "t")
-        if self.type == "d":  # has the kit plot the material corresponding to the type
-            plotck(kit.d)
-        if self.type == "t":
-            plotck(kit.t)
-        # checks whether or not to enable saving the file
-        if self.type != "" and self.name != "":
-            self.c["state"] = NORMAL
 
     def set_type(self, t):
         self.type = t

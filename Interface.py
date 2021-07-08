@@ -4,6 +4,7 @@ from tkfilebrowser import askopenfilename
 from tkinter import *
 from CalKit import CalKit, plotck
 from Library import Library
+import easygui as e
 
 
 # retrieves the list of Calibration Kits (ck's) from the library
@@ -480,9 +481,12 @@ class SaveKitUi(StartUi):
         library = lib.library
         print(library)  # fpr validation
         # Sets the current kit data equal to the kit data from the selected kit
-        self.kit = library[self.name]
-        self.kit.t = library[self.name].t
-        self.kit.d = library[self.name].d
+        try:
+            self.kit = library[self.name]
+            self.kit.t = library[self.name].t
+            self.kit.d = library[self.name].d
+        except KeyError:
+            e.msgbox("You must select a calibration kit to export")
         # plots the selected kits data if appropriate
         if self.type == "t":
             plotck(library[self.name].t)

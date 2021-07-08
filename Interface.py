@@ -447,30 +447,32 @@ class SaveKitUi(StartUi):
             self.frame, text="close window",
             command=self.close_window)
         v = tkinter.StringVar(self.master, "1")
+        label = tkinter.Label(self.master, text="Type of lamp material :").grid(row=1, column=0, sticky=W,
+                                                                                padx=10, pady=10, ipadx=5, ipady=5)
         tkinter.Radiobutton(self.master, text="Deuterium Scan", variable=v, value="d",
-                            command=lambda: self.set_type("d")).grid()
+                            command=lambda: self.set_type("d")).grid(row=1, column=1)
         tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=v, value="t",
-                            command=lambda: self.set_type("t")).grid()
+                            command=lambda: self.set_type("t")).grid(row=1, column=2)
+        label = tkinter.Label(self.master, text="Select scan from library :").grid(row=2, column=0, sticky=W,
+                                                                                padx=10, pady=10, ipadx=5, ipady=5)
         options = StartUi.cklist
         if not options:
             options = ["empty"]
         question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
-        question_menu.grid()
+        question_menu.grid(row=2, column=1)
         submit_button = tkinter.Button(self.master, text='Submit', command=lambda: self.select_existing_file(StartUi.lib))
-        submit_button.grid()
-        export_button = tkinter.Button(self.master, text="export file", command=lambda: self.export_file(StartUi.lib))
-        export_button.grid()
+        submit_button.grid(row=2, column=2)
+        self.export_button = tkinter.Button(self.master, text="export file", state=DISABLED,
+                                            command=lambda: self.export_file(StartUi.lib))
+        self.export_button.grid(row=4, column=1)
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
-        self.frame.grid()
+        self.frame.grid(row=5, column=1)
 
     def close_window(self):
         self.master.destroy()
 
     def set_type(self, t):
         self.type = t
-        # checks for the presence of a name and filename, and if found enables loading the scandata
-        if self.name != "" and self.filename != "":
-            self.b2["state"] = NORMAL
         return self.type
 
     # the command that responds to the dropdown menu
@@ -492,6 +494,8 @@ class SaveKitUi(StartUi):
             plotck(library[self.name].t)
         if self.type == "d":
             plotck(library[self.name].d)
+        if self.name != "" and self.type != "":
+            self.export_button["state"] = NORMAL
         return self.name, self.kit  # returns the kit
 
     def changetext(self):

@@ -9,10 +9,7 @@ import matplotlib.pyplot as plt
 import easygui as e
 
 
-
-
-
-def plotck(mat):
+def plot_ck(mat):
     if len(mat.spline) != 0:
         plt.figure()
         for i in range(len(mat.spline)):
@@ -78,23 +75,25 @@ class CalKit:
 
     # exports a single scan as a txt file
     def print_to_file(self, mat):
+        y = []
+        k = 0
         file = open("file" + self.name + "export.txt", "w+")
         # delimiter is set to space, this could be changed later
-        file.writelines("labels" + "/s" + self.name + "\n")
+        file.writelines("labels" + " " + self.name + "\n")
         # generates the data for the file
         end = mat.x_end
         start = mat.x_start
         step = mat.step
-        steps = int((end[0] - start[0]) / step)
+        steps = int((end[0] - start[0]) / step) + 1
         x = np.linspace(mat.x_start[0], mat.x_end[0],
                         num=steps)
-        for i in range(len(mat.spline)) :
+        for i in range(len(mat.spline)):
             spl = mat.spline[i]
-            y = []
             y.append(spl(x))
         # prints the data in procedurally
         for i in range(len(x)):
-            file.write(str(x[i]) + "/s")
+            file.write(str(x[i]) + ",")
             for j in range(len(y)):
-                file.write(str(y[j]) + "/s")
-            file.write("/n")
+                temp = str(y[j][i])
+                file.write(temp + ",")
+            file.write("\n")

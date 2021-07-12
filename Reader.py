@@ -12,7 +12,7 @@ def scan_to_dict(fn):
     x_axis_list = []
     y_axis_list = []
     short_header = False
-    scans, checklist = getscans(fn, x_axis_list, y_axis_list)
+    scans, checklist = get_scans(fn, x_axis_list, y_axis_list)
     title_length = get_title_length(f, checklist)
     # resets the reader to the start of the file and prepares to read into the dictionary
     f.seek(0, 0)
@@ -20,7 +20,7 @@ def scan_to_dict(fn):
     for j in range(title_length):
         line = f.readline()
     # inputs the label into the dictionary
-    linetodict(f, dictionary, scans)
+    line_to_dict(f, dictionary, scans)
     line = f.readline()  # reads an extra line forwards
     if re.match("\d",
                 line):  # if the header is short then the next line will contain digits at the start owing to it
@@ -39,7 +39,7 @@ def scan_to_dict(fn):
     # adds the remaining header lines into the header
     if not short_header:
         for j in range(19):
-            linetodict(f, dictionary, scans)
+            line_to_dict(f, dictionary, scans)
         # skips a line if the header is long
         line = f.readline()
         # reads the data into a list which is in turn added into the dictionary under the key of "data"
@@ -68,7 +68,7 @@ def read_data(file, scans, x_axis_list, y_axis_list, dictionary):
 
 # sends the binary reader to the end of the file, where it will check the number of separate columns to determine
 # the number of scans
-def getscans(fn, x_axis_list, y_axis_list):
+def get_scans(fn, x_axis_list, y_axis_list):
     f3 = open(fn, "rb")
     f3.seek(-2, os.SEEK_END)
     while f3.read(1) != b'\n':
@@ -90,7 +90,7 @@ def getscans(fn, x_axis_list, y_axis_list):
 
 
 # reads a line of the file provided into the dictionary
-def linetodict(f, dictionary, scans):
+def line_to_dict(f, dictionary, scans):
     line = f.readline()
     line = line.strip()
     column = line.split(detect(line))

@@ -2,10 +2,12 @@
 import tkinter.messagebox
 from tkfilebrowser import askopenfilename
 from tkinter import *
-from CalKit import CalKit, plotck
+from CalKit import CalKit, plot_ck
 from Library import Library
 import easygui as e
 import os
+from tkinter import ttk
+from ttkthemes import themed_tk as theme
 
 
 # retrieves the list of Calibration Kits (ck's) from the library
@@ -25,18 +27,20 @@ def save_file(library, ck):
 
 
 class StartUi:
-    cklist = []
     lib = Library()
     namelabel = ""
 
     def __init__(self, master):
         self.master = master
+        # s = ttk.Style()
+        # s.theme_names()
+        # root.tk.call('source', 'E:/awthemes-10.4.0/awdark.tcl')
+        # s.theme_use("awdark")
         self.master.geometry("500x500")
         self.show_page_widgets()
         self.namelabel = tkinter.StringVar()
         self.namelabel.set("No kit name selected")
         self.populatecklist()
-        # print(StartUi.cklist)
         # creates the "box" for the ui
         self.window = master
         # Dictionary to create multiple buttons
@@ -49,7 +53,7 @@ class StartUi:
             StartUi.cklist = []  # removes the placeholder value
             for i in self.lib.get_ck_list():  # populates the dropdown
                 StartUi.cklist.append(i.name)
-                i.print()
+                # i.print()
         return StartUi.cklist
 
     def show_page_widgets(self):
@@ -79,10 +83,13 @@ class NewKitUi(StartUi):
         self.master.geometry("500x500")
         self.namelabel = tkinter.StringVar(self.master)
         self.namelabel.set("No kit name selected")
-        self.kit = CalKit()
+        self.make_calibration_kit()
         self.name = ""
         self.filename = ""
         self.type = ""
+
+    def make_calibration_kit(self):
+        self.kit = CalKit()
 
     def show_page_widgets(self):
         self.frame = tkinter.Frame(self.master)
@@ -92,8 +99,8 @@ class NewKitUi(StartUi):
             self.frame, text="close window",
             command=self.close_window)
         self.v = tkinter.StringVar(self.master, "1")
-        label = tkinter.Label(self.master, text="Type of lamp material :").grid(row=1, column=0, sticky=W,
-                                                                                padx=10, pady=10, ipadx=5, ipady=5)
+        tkinter.Label(self.master, text="Type of lamp material :").grid(row=1, column=0, sticky=W,
+                                                                        padx=10, pady=10, ipadx=5, ipady=5)
         tkinter.Radiobutton(self.master, text="Deuterium", variable=self.v, value="d",
                             command=lambda: self.set_type("d")).grid(row=1, column=1,
                                                                      padx=10, pady=10, ipadx=5, ipady=5)
@@ -102,28 +109,30 @@ class NewKitUi(StartUi):
                                                                      padx=10, pady=10, ipadx=5, ipady=5)
         self.label = tkinter.Label(self.master, text="no file selected")
         self.label.grid(row=3, column=0, ipadx=5, ipady=5)
-        b = tkinter.Button(self.master, text="browse files",
-                           command=lambda: self.open_file_browser())  # searches files for input file
-        b.grid(row=3, column=1, ipadx=5, ipady=5)
-        self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
-                                 command=lambda: self.open_file(self.filename, self.name,
-                                                                self.kit))  # reads
+        browse_button = tkinter.Button(self.master, text="browse files",
+                                       command=lambda: self.open_file_browser())  # searches files for input file
+        browse_button.grid(row=3, column=1, ipadx=5, ipady=5)
+        # b.config(style="awdark.style.Menubutton")
+        self.select_file = tkinter.Button(self.master, text="select file", state=DISABLED,
+                                          command=lambda: self.open_file(self.filename, self.name,
+                                                                         self.kit))  # reads
         # the file
-        self.b2.grid(row=3, column=2, ipadx=5, ipady=5)
+        self.select_file.grid(row=3, column=2, ipadx=5, ipady=5)
         # text entry box
-        label = tkinter.Label(self.master, text="Enter name of calibration kit:").grid(row=2, column=0, sticky=W,
-                                                                                       padx=10, pady=10, ipadx=5,
-                                                                                       ipady=5)
-        e = tkinter.Entry(self.master)
-        e.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
-        e.focus_set()
-        f = tkinter.Button(self.master, text="save name", command=lambda: self.callback(e))  # name input
+        tkinter.Label(self.master, text="Enter name of calibration kit:").grid(row=2, column=0, sticky=W,
+                                                                               padx=10, pady=10, ipadx=5,
+                                                                               ipady=5)
+        save_name = tkinter.Entry(self.master)
+        save_name.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+        save_name.focus_set()
+        f = tkinter.Button(self.master, text="save name", command=lambda: self.callback(save_name))  # name input
         f.grid(row=2, column=2, ipadx=5, ipady=5)
-        self.c = tkinter.Button(self.master, text="save",
-                                state=DISABLED,
-                                command=lambda: save_file(StartUi.lib, self.kit))  # saves the file to the .pkl file
+        self.save_file = tkinter.Button(self.master, text="save",
+                                        state=DISABLED,
+                                        command=lambda: save_file(StartUi.lib,
+                                                                  self.kit))  # saves the file to the .pkl file
         # given
-        self.c.grid(row=4, column=1, pady=50, ipadx=5, ipady=5)
+        self.save_file.grid(row=4, column=1, pady=50, ipadx=5, ipady=5)
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
         self.frame.grid(row=5, column=1)
 
@@ -133,12 +142,12 @@ class NewKitUi(StartUi):
     def callback(self, e):
         self.name = e.get()
         if self.filename != "" and self.type != "":
-            self.b2["state"] = NORMAL
-        self.changetext()
+            self.select_file["state"] = NORMAL
+        self.change_text()
         print("Name set to: " + self.name)  # print is for validation
         return self.name
 
-    def changetext(self):
+    def change_text(self):
         self.namelabel.set("current kit name: " + self.name)
 
     def open_file(self, filename, name, kit):
@@ -150,18 +159,18 @@ class NewKitUi(StartUi):
         if self.type == "t":
             kit.add_scan(filename, "t")
         if self.type == "d":  # has the kit plot the material corresponding to the type
-            plotck(kit.d)
+            plot_ck(kit.d)
         if self.type == "t":
-            plotck(kit.t)
+            plot_ck(kit.t)
         # checks whether or not to enable saving the file
         if self.type != "" and self.name != "":
-            self.c["state"] = NORMAL
+            self.save_file["state"] = NORMAL
 
     def set_type(self, t):
         self.type = t
         # checks for the presence of a name and filename, and if found enables loading the scandata
         if self.name != "" and self.filename != "":
-            self.b2["state"] = NORMAL
+            self.select_file["state"] = NORMAL
         return self.type
 
     def open_file_browser(self):
@@ -171,7 +180,11 @@ class NewKitUi(StartUi):
                                               ("all files", "*.*")))
         if filename != "":  # if a file is selected then the filename property is set to it
             self.label.config(text="selected file: " + os.path.basename(filename))
-            return filename
+            if self.type != "":
+                self.select_file["state"] = NORMAL
+            print(filename)
+            self.filename = filename
+            return self.filename
 
 
 class LoadKitUi(StartUi):
@@ -206,26 +219,26 @@ class LoadKitUi(StartUi):
         tkinter.Radiobutton(self.master, text="Tungsten Scan", variable=self.v, value="t",
                             command=lambda: self.set_type("t")).grid(row=1, column=2,
                                                                      padx=10, pady=10, ipadx=5, ipady=5)
-        label = tkinter.Label(self.master, text="Select file with update data :").grid(row=2, column=0, sticky=W,
+        label = tkinter.Label(self.master, text="Select file with update data :").grid(row=3, column=0, sticky=W,
                                                                                        padx=10, pady=10, ipadx=5,
                                                                                        ipady=5)
         b = tkinter.Button(self.master, text="browse files",
                            command=lambda: self.open_file_browser())  # searches files for input file
-        b.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+        b.grid(row=3, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.b2 = tkinter.Button(self.master, text="select file", state=DISABLED,
                                  command=lambda: self.open_file(self.filename, self.name, self.kit))  # reads
         # the file
-        self.b2.grid(row=2, column=2, padx=10, pady=10, ipadx=5, ipady=5)
+        self.b2.grid(row=3, column=2, padx=10, pady=10, ipadx=5, ipady=5)
         options = StartUi.cklist
         if not options:
             options = ["empty"]
         self.label = tkinter.Label(self.master, text="Selected calibration kit :")
-        self.label.grid(row=4, column=0, sticky=W, padx=10, pady=10, ipadx=5, ipady=5)
+        self.label.grid(row=2, column=0, sticky=W, padx=10, pady=10, ipadx=5, ipady=5)
         question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
-        question_menu.grid(row=4, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+        question_menu.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         submit_button = tkinter.Button(self.master, text='Submit',
                                        command=lambda: self.select_existing_file(StartUi.lib))
-        submit_button.grid(row=4, column=2, padx=10, pady=10, ipadx=5, ipady=5)
+        submit_button.grid(row=2, column=2, padx=10, pady=10, ipadx=5, ipady=5)
         self.c = tkinter.Button(self.master, text="save",
                                 state=DISABLED,
                                 command=lambda: save_file(
@@ -246,9 +259,9 @@ class LoadKitUi(StartUi):
         if self.type == "t":
             kit.add_scan(filename, "t")
         if self.type == "d":  # has the kit plot the material corresponding to the type
-            plotck(kit.d)
+            plot_ck(kit.d)
         if self.type == "t":
-            plotck(kit.t)
+            plot_ck(kit.t)
         # checks whether or not to enable saving the file
         if self.type != "" and self.name != "":
             self.c["state"] = NORMAL
@@ -282,10 +295,10 @@ class LoadKitUi(StartUi):
         self.kit.d = library[self.name].d
         # plots the selected kits data if appropriate
         if self.type == "t":
-            plotck(library[self.name].t)
+            plot_ck(library[self.name].t)
         if self.type == "d":
-            plotck(library[self.name].d)
-        self.label.config(text="selected calibration kit: " + self.name)
+            plot_ck(library[self.name].d)
+        self.label.config(text="Selected calibration kit: " + self.name)
         return self.name, self.kit  # returns the kit
 
     def changetext(self):
@@ -361,9 +374,9 @@ class SaveKitUi(StartUi):
             e.msgbox("You must select a calibration kit to export")
         # plots the selected kits data if appropriate
         if self.type == "t":
-            plotck(library[self.name].t)
+            plot_ck(library[self.name].t)
         if self.type == "d":
-            plotck(library[self.name].d)
+            plot_ck(library[self.name].d)
         if self.name != "" and self.type != "":
             self.export_button["state"] = NORMAL
         self.label.config(text="selected calibration kit: " + self.name)
@@ -384,3 +397,6 @@ class SaveKitUi(StartUi):
 root = tkinter.Tk()
 app = StartUi(root)
 root.mainloop()
+
+# root.tk.call('lappend', 'auto_path', 'E:/awthemes - 10.4.0')
+# root.tk.call('package', 'require', 'awdark.tcl')

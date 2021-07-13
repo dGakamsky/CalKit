@@ -1,13 +1,15 @@
 import CalKit
 import numpy as np
 import pickle
-
+import os
 
 # exports a single scan as a txt file
 def print_to_file(name, mat):
     y = []
-    k = 0
-    file = open("file" + name + "export.txt", "w+")
+    path = "C://Users//David//PycharmProjects//CalKit//exports"
+    filename = (name + "_export.txt")
+    fullpath = os.path.join(path, filename)
+    file = open(fullpath, "w+")
     # delimiter is set to space, this could be changed later
     file.writelines("labels" + ", " + name + "\n")
     # generates the data for the file

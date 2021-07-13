@@ -47,16 +47,12 @@ class CalKit:
         self._name = n
 
     # receives a filename and type when called, then passes that onto a reader which returns data
-    def add_scan(self, filename, m):
+    def add_scan(self, filename, material):
         read = Reader.scan_to_dict(filename)
         spl = datamaths.getspline(read)  # creates a spline object based on the data
         # passes the spline into the appropriate type of Material
-        for i in range(len(spl)):
-            if m == "t":
-                print(spl)
-                self.materials["t"].spline = spl[i]
-            if m == "d":
-                self.materials["d"].spline = spl[i]
+        self.materials[material].spline = spl
+
 
     # function that plots the data in a material passed in as parameter
 

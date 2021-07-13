@@ -1,12 +1,18 @@
 from tkfilebrowser import askopenfilename
 import outputer
 from CalKit import CalKit, plot_ck
-from Interface import StartUi
+#from Interface import StartUi
+import tkinter
+import tkinter.messagebox
+from tkfilebrowser import askopenfilename
+from tkinter import *
+from CalKit import CalKit, plot_ck
 import os
+import outputer
 
-class NewKitUi(StartUi):
-    def __init__(self, master):
-        super().__init__(master)
+class NewKitUi():
+    def __init__(self, master, library):
+        #super().__init__(master)
         self.master = master
         self.master.title("Load New Calkit")
         self.master.geometry("500x500")
@@ -17,6 +23,8 @@ class NewKitUi(StartUi):
         self.filename = ""
         self.type = ""
         self.file_loaded = False
+        self.library = library
+        self.show_page_widgets()
 
     def make_calibration_kit(self):
         self.kit = CalKit()
@@ -59,7 +67,7 @@ class NewKitUi(StartUi):
         f.grid(row=2, column=2, ipadx=5, ipady=5)
         self.save_file = tkinter.Button(self.master, text="save",
                                         state=DISABLED,
-                                        command=lambda: outputer.save_file(StartUi.lib,
+                                        command=lambda: outputer.save_file(self.library,
                                                                   self.kit))  # saves the file to the .pkl file
         # given
         self.save_file.grid(row=4, column=1, pady=50, ipadx=5, ipady=5)
@@ -84,15 +92,10 @@ class NewKitUi(StartUi):
         kit.name = name  # sets the name
         # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
         # type in
-        if self.type == "d":  # sets the type of the scan
-            kit.add_scan(filename, "d")
-            plot_ck(kit.materials["d"])
-        if self.type == "t":
-            kit.add_scan(filename, "t")
-            plot_ck(kit.materials["t"])
+        kit.add_scan(filename, self.type)
+        plot_ck(kit.materials[self.type])
         # checks whether or not to enable saving the file
-        if self.type != "" and self.name != "":
-            self.save_file["state"] = NORMAL
+        self.validate()
 
     def set_type_and_validate(self, t):
         self.type = t
@@ -107,7 +110,7 @@ class NewKitUi(StartUi):
             self.save_file["state"] = NORMAL
 
     def open_file_browser(self):
-        filename = askopenfilename(initialdir="/Users/David/PycharmProjects/CalKit",
+        filename = askopenfilename(initialdir="/Users/David/PycharmProjects/CalKit/scans",
                                    title="Select file",
                                    filetypes=(("text files", "*.txt"),
                                               ("all files", "*.*")))

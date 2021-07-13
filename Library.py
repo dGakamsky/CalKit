@@ -1,5 +1,4 @@
 # stores the calibration kits in a dictionary, responsible for collecting the various calibration kits
-
 import pickle
 
 
@@ -31,8 +30,3 @@ class Library:
                 except EOFError:
                     break
         return ck_list  # returns a list containing the un-pickled calibration kits
-
-    # dumps the library to the .pkl
-    def dump_ck_list(self):
-        with open("cklib.pkl", "wb") as openfile:
-            pickle.dump(self.library, openfile)

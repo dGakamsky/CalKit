@@ -1,6 +1,15 @@
-class LoadKitUi(StartUi):
-    def __init__(self, master):
-        super().__init__(master)
+from outputer import save_file
+import tkinter
+import tkinter.messagebox
+from tkfilebrowser import askopenfilename
+from tkinter import *
+from CalKit import CalKit, plot_ck
+
+
+
+class LoadKitUi():
+    def __init__(self, master, library):
+        # super().__init__(master)
         self.master = master
         self.master.title("Load New Calkit")
         self.master.geometry("500x500")
@@ -12,12 +21,15 @@ class LoadKitUi(StartUi):
         self.filename = ""
         self.type = ""
         self.file_loaded = False
+        self.library = library
+        self.cklist = self.populatecklist()
+        self.show_page_widgets()
 
     def show_page_widgets(self):
         "A frame with a button to quit the window"
-        self.value_inside = tkinter.StringVar(root)
+        self.value_inside = tkinter.StringVar(self.master)
         self.frame = tkinter.Frame(self.master)
-        self.frame.label = tkinter.Label(self.master, textvariable=StartUi.namelabel)
+        self.frame.label = tkinter.Label(self.master, textvariable=self.namelabel)
         self.frame.label.grid()
         self.quit_button = tkinter.Button(
             self.frame, text="close window",
@@ -41,7 +53,7 @@ class LoadKitUi(StartUi):
                                           command=lambda: self.open_file(self.filename, self.name, self.kit))  # reads
         # the file
         self.select_file.grid(row=3, column=2, padx=10, pady=10, ipadx=5, ipady=5)
-        options = StartUi.cklist
+        options = self.cklist
         if not options:
             options = ["empty"]
         self.label = tkinter.Label(self.master, text="Selected calibration kit :")
@@ -49,12 +61,13 @@ class LoadKitUi(StartUi):
         question_menu = tkinter.OptionMenu(self.master, self.value_inside, *options)
         question_menu.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         submit_button = tkinter.Button(self.master, text='Submit',
-                                       command=lambda: self.select_existing_file(StartUi.lib))
+                                       command=lambda: self.select_existing_file(self.library))
         submit_button.grid(row=2, column=2, padx=10, pady=10, ipadx=5, ipady=5)
         self.save_file = tkinter.Button(self.master, text="save",
                                         state=DISABLED,
                                         command=lambda: save_file(
-                                    self.lib, self.kit))  # saves the file to the .pkl file given the input parameters
+                                            self.library,
+                                            self.kit))  # saves the file to the .pkl file given the input parameters
         self.save_file.grid(row=6, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.quit_button.pack(fill=tkinter.X, pady=50, ipadx=10, ipady=10)
         self.frame.grid(row=7, column=1, padx=10, pady=10, ipadx=5, ipady=5)
@@ -62,16 +75,22 @@ class LoadKitUi(StartUi):
     def close_window(self):
         self.master.destroy()
 
+    def populatecklist(self):
+        self.cklist = ["empty"]  # default necessary for when/if the file being read from is empty
+        if self.library.get_ck_list():
+            self.cklist = []  # removes the placeholder value
+            for i in self.library.get_ck_list():  # populates the dropdown
+                self.cklist.append(i.name)
+                # i.print()
+        return self.cklist
+
     def open_file(self, filename, name, kit):
         kit.name = name  # sets the name
         # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
         # type in
-        if self.type == "d":  # sets the type of the scan
-            kit.add_scan(filename, "d")
-            plot_ck(kit.materials["d"])
-        if self.type == "t":
-            kit.add_scan(filename, "t")
-            plot_ck(kit.materials["t"])
+        kit.add_scan(filename, self.type)
+        plot_ck(kit.materials[self.type])
+        self.file_loaded = True
         # checks whether or not to enable saving the file
         self.validate()
 
@@ -80,7 +99,6 @@ class LoadKitUi(StartUi):
             self.select_file["state"] = NORMAL
         if self.file_loaded:
             self.save_file["state"] = NORMAL
-
 
     def set_type(self, t):
         self.type = t
@@ -107,13 +125,11 @@ class LoadKitUi(StartUi):
         print(library)  # fpr validation
         # Sets the current kit data equal to the kit data from the selected kit
         self.kit = library[self.name]
-        self.kit.t = library[self.name].t
-        self.kit.d = library[self.name].d
+        self.kit.materials["t"] = library[self.name].materials["t"]
+        self.kit.materials["d"] = library[self.name].materials["d"]
         # plots the selected kits data if appropriate
-        if self.type == "t":
-            plot_ck(library[self.name].materials["t"])
-        if self.type == "d":
-            plot_ck(library[self.name].materials["d"])
+
+        plot_ck(library[self.name].materials[self.type])
         self.label.config(text="Selected calibration kit: " + self.name)
         return self.name, self.kit  # returns the kit
 

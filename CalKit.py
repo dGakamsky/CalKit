@@ -36,8 +36,7 @@ class CalKit:
 
     def __init__(self):
         self._name = ""
-        self.d = Lamp_Material("d")
-        self.t = Lamp_Material("t")
+        self.materials = {"d": Lamp_Material("d"), "t": Lamp_Material("t")}
 
     @property
     def name(self):
@@ -55,9 +54,9 @@ class CalKit:
         for i in range(len(spl)):
             if m == "t":
                 print(spl)
-                self.t.spline = spl[i]
+                self.materials["t"].spline = spl[i]
             if m == "d":
-                self.d.spline = spl[i]
+                self.materials["d"].spline = spl[i]
 
     # function that plots the data in a material passed in as parameter
 
@@ -65,35 +64,11 @@ class CalKit:
     def print(self):
         print(type(self))
         print(self.name)
-        print(type(self.d))
+        print(type(self.materials["d"]))
         print("d scan")
-        self.d.print()
-        print(type(self.t))
+        self.materials["d"].print()
+        print(type(self.materials["t"]))
         print("t scan")
-        self.t.print()
+        self.materials["t"].print()
         print("end of calkit")
 
-    # exports a single scan as a txt file
-    def print_to_file(self, mat):
-        y = []
-        k = 0
-        file = open("file" + self.name + "export.txt", "w+")
-        # delimiter is set to space, this could be changed later
-        file.writelines("labels" + " " + self.name + "\n")
-        # generates the data for the file
-        end = mat.x_end
-        start = mat.x_start
-        step = mat.step
-        steps = int((end[0] - start[0]) / step) + 1
-        x = np.linspace(mat.x_start[0], mat.x_end[0],
-                        num=steps)
-        for i in range(len(mat.spline)):
-            spl = mat.spline[i]
-            y.append(spl(x))
-        # prints the data in procedurally
-        for i in range(len(x)):
-            file.write(str(x[i]) + ",")
-            for j in range(len(y)):
-                temp = str(y[j][i])
-                file.write(temp + ",")
-            file.write("\n")

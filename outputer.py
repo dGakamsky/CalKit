@@ -37,7 +37,8 @@ def print_to_file(name, mat):
 # saves to the .pkl file, functions via append
 def save_file(library, ck, name):
     # adds kit to library
-    ck.name = name.get()
+    if type(name) != str:
+        ck.name = name.get()
     library.library = ck
     ck.print()  # for testing
     dump_ck_list(library)  # calls the library to dump to the pickle file

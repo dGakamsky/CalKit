@@ -60,14 +60,15 @@ class LoadKitUi():
             options = ["empty"]
         self.label = tkinter.Label(self.frame, text="Selected calibration kit :")
         self.label.grid(row=2, column=0, sticky=W, padx=10, pady=10, ipadx=5, ipady=5)
-        question_menu = tkinter.OptionMenu(self.frame, self.value_inside, *options,
+        self.question_menu = tkinter.OptionMenu(self.frame, self.value_inside, *options,
                                            command=lambda x=None: self.select_existing_file(self.library))
-        question_menu.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+        self.question_menu.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.save_file = tkinter.Button(self.frame, text="save",
                                         state=DISABLED,
                                         command=lambda: save_file(
                                             self.library,
-                                            self.kit))  # saves the file to the .pkl file given the input parameters
+                                            self.kit,self.kit.name))  # saves the file to the .pkl file given the
+        # input parameters
         self.save_file.grid(row=6, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.quit_button.grid(pady=50, ipadx=10, ipady=10)
         self.frame.grid(row=0, column=0, padx=10, pady=10, ipadx=5, ipady=5)
@@ -102,16 +103,12 @@ class LoadKitUi():
         self.validate()
 
     def validate(self):
-        if self.name != "" and self.filename != "" and self.type != "":
-            self.select_file["state"] = NORMAL
         if self.file_loaded:
             self.save_file["state"] = NORMAL
 
     def set_type(self, t):
         self.type = t
         # checks for the presence of a name and filename, and if found enables loading the scandata
-        if self.name != "" and self.filename != "":
-            self.select_file["state"] = NORMAL
         return self.type
 
     def open_file_browser(self):
@@ -123,7 +120,6 @@ class LoadKitUi():
             self.label.config(text="selected file: " + os.path.basename(filename))
             self.filename = filename
             self.open_file(self.filename, self.kit)
-            self.save_file["state"] = NORMAL
 
     # the command that responds to the dropdown menu
     def select_existing_file(self, lib):

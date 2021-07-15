@@ -72,10 +72,14 @@ def plot_ck(mat,plt):
                 spl = mat.spline[i]
                 y = spl(x)  # gets the Y axis data
                 #plt.title(date)
-                plt.set(xlabel="x", ylabel="y", title=texttitle)
+                plt.set(xlabel="Wavelength, nm", ylabel="Intensity, a.u.", title=texttitle)
                 plt.plot(x, y)  # plots it
             except TypeError:
-                e.msgbox("This calibration kit does not have a scan of the selected type stored")
+                error_message("This calibration kit does not have a scan of the selected type stored")
         plt.grid()
     else:
-        e.msgbox("This calibration kit does not have a scan of the selected type stored")
+        error_message("This calibration kit does not have a scan of the selected type stored")
+
+
+def error_message(text):
+    e.msgbox(text)

@@ -67,7 +67,7 @@ class LoadKitUi():
                                         state=DISABLED,
                                         command=lambda: save_file(
                                             self.library,
-                                            self.kit,self.kit.name))  # saves the file to the .pkl file given the
+                                            self.kit, self.kit.name))  # saves the file to the .pkl file given the
         # input parameters
         self.save_file.grid(row=6, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.quit_button.grid(pady=50, ipadx=10, ipady=10)
@@ -95,7 +95,7 @@ class LoadKitUi():
         # this check method is probably very inefficient, but I was unable to get the methods to work by passing the
         # type in
         fname = pathlib.Path(filename)
-        date = datetime.datetime.fromtimestamp(fname.stat().st_ctime)
+        date = datetime.date.fromtimestamp(fname.stat().st_ctime)
         kit.add_scan(filename, self.type, date)
         outputer.plot_ck(kit.materials[self.type], self.subplot)
         self.file_loaded = True
@@ -132,8 +132,10 @@ class LoadKitUi():
         self.kit.materials["t"] = library[self.name].materials["t"]
         self.kit.materials["d"] = library[self.name].materials["d"]
         # plots the selected kits data if appropriate
-
-        outputer.plot_ck(library[self.name].materials[self.type], self.subplot)
+        try:
+            outputer.plot_ck(library[self.name].materials[self.type], self.subplot)
+        except KeyError:
+            outputer.error_message("please select a material before selecting a file")
         self.canvas.draw()
         self.label.config(text="Selected calibration kit: " + self.name)
         self.browse_file["state"] = NORMAL

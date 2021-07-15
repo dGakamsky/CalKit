@@ -88,7 +88,7 @@ class NewKitUi():
     # opens the selected file and loads it into the "material" container, plots it for reference
     def open_file(self, filename, kit):
         fname = pathlib.Path(filename)
-        date = datetime.datetime.fromtimestamp(fname.stat().st_ctime)
+        date = datetime.date.fromtimestamp(fname.stat().st_ctime)
         kit.add_scan(filename, self.type, date)
         outputer.plot_ck(kit.materials[self.type], self.subplot)
         self.canvas.draw()

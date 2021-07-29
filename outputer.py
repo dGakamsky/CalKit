@@ -6,24 +6,22 @@ import easygui as e
 
 
 # exports a single scan as a txt file
-def print_to_file(name, mat):
+def print_to_file(name, ei):
     y = []
-    path = "C://Users//David//PycharmProjects//CalKit//exports"
+    path = "C://Users//David//PycharmProjects//EI ref//exports"
     filename = (name + "_export.txt")
     fullpath = os.path.join(path, filename)
     file = open(fullpath, "w+")
     # delimiter is set to space, this could be changed later
     file.writelines("labels" + ", " + name + "\n")
     # generates the data for the file
-    end = mat.x_end
-    start = mat.x_start
-    step = int(mat.step)
-
-    steps = int((end[0] - start[0]) / step) + 1
-    x = np.linspace(mat.x_start[0], mat.x_end[0],
-                    num=steps)
-    for i in range(len(mat.spline)):
-        spl = mat.spline[i]
+    end = int(ei.spline[0].get_knots()[-1])
+    start = int(ei.spline[0].get_knots()[0])
+    step = 1
+    steps = int((end - start) / step) + 1
+    x = np.linspace(start, end, num=steps)
+    for i in range(len(ei.spline)):
+        spl = ei.spline[i]
         y.append(spl(x))
     # prints the data in procedurally
     for i in range(len(x)):
@@ -38,12 +36,14 @@ def print_to_file(name, mat):
 def save_file(library, ck, name):
     # adds kit to library
     if type(name) != str:
-        ck.name = name.get()
+        ck.product_name = name.get()
     library.library = ck
-    ck.print()  # for testing
+    #ck.print()  # for testing
     dump_ck_list(library)  # calls the library to dump to the pickle file
     for i in library.get_ck_list():  # testing function to validate what was printed
         i.print()
+
+# saves to the .pkl file, functions via append
 
 
 # dumps the library to the .pkl
@@ -52,18 +52,23 @@ def dump_ck_list(self):
         pickle.dump(self.library, openfile)
 
 
-def plot_ck(mat,plt):
+def dump_ei_list(self):
+    with open("eilib.pkl", "wb") as openfile:
+        pickle.dump(self.library, openfile)
+
+
+def plot_ck(mat, plt):
     if len(mat.spline) != 0:
         plt.clear()
         for i in range(len(mat.spline)):
             x = []
             y = []
             date = "no date loaded"
-            if mat.date != None:
+            if mat.date is not None:
                 date = mat.date
-            texttitle = str("scan created date: " + str(date))
-            end = mat.x_end[i]
-            start = mat.x_start[i]
+            text_title = str("scan created date: " + str(date))
+            end = int(mat.x_end)
+            start = int(mat.x_start)
             step = mat.step
             steps = int((end - start) / step)  # determines the number of data-points
             x = np.linspace(mat.x_start, mat.x_end,
@@ -71,8 +76,7 @@ def plot_ck(mat,plt):
             try:
                 spl = mat.spline[i]
                 y = spl(x)  # gets the Y axis data
-                #plt.title(date)
-                plt.set(xlabel="Wavelength, nm", ylabel="Intensity, a.u.", title=texttitle)
+                plt.set(xlabel="Wavelength, nm", ylabel="Intensity, a.u.", title=text_title)
                 plt.plot(x, y)  # plots it
             except TypeError:
                 error_message("This calibration kit does not have a scan of the selected type stored")
@@ -81,5 +85,24 @@ def plot_ck(mat,plt):
         error_message("This calibration kit does not have a scan of the selected type stored")
 
 
+def plot_ei(spline, plt):
+    spline = spline[0]
+    end = int(spline.get_knots()[-1])
+    start = int(spline.get_knots()[0])
+    steps = int((end - start))
+    x = np.linspace(start, end, num=steps)
+    y = spline(x)
+    plt.clear()
+    plt.plot(x, y)
+
+
 def error_message(text):
     e.msgbox(text)
+
+
+def plot_scans(scans):
+    for scan in scans:
+        plt.plot(scan[0][0], scan[0][1], label=scan[1])
+    plt.legend()
+    plt.show()
+

@@ -3,7 +3,6 @@
 # "subcontractor" of interface for the purpose of getting the data from a file
 import Reader
 import datamaths
-from material import Lamp_Material
 
 
 class CalKit:

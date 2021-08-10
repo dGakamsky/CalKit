@@ -7,8 +7,7 @@ from Ei_Library import Library
 
 # retrieves the list of Calibration Kits (ck's) from the library
 from export_file import SaveKitUi
-from load_ei import LoadKitUi
-from new_ei import NewKitUi
+
 
 
 def load_ck_list(lib):

@@ -1,6 +1,5 @@
 # the mathematical operations happen here
 import numpy as np
-from numpy import sort
 from scipy.interpolate import UnivariateSpline
 from scipy.optimize import fmin
 from matplotlib import pyplot as plt

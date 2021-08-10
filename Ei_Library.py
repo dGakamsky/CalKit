@@ -25,7 +25,7 @@ class Library:
                     lib = pickle.load(openfile)  # reads the library stored within the file
                     for key, item in lib.items():  # reads through the library (its a dictionary class object)
                         self.library = item  # gets the "data" part of the dictionary and adds it into the usable
-                        #item = [key, item]
+                        # item = [key, item]
                         ei_list.append(item)  # adds the item to the list of stored calkits
                 except EOFError:
                     break

@@ -20,26 +20,25 @@ def scan_to_dict(fn):
     for j in range(title_length):
         line = f.readline()
     # inputs the label into the dictionary
-    line_to_dict(f, dictionary, scans)
-    line = f.readline()  # reads an extra line forwards
+    line = f.readline()
     if re.match("\d",
                 line):  # if the header is short then the next line will contain digits at the start owing to it
         # being numerical
         short_header = True  # shortheader is set to true
-        # reads the data into the dictionary
-        column = line.split(detect(line))  # breaks the line up
-        for j in range(scans):  # reads the data into the arrays created for each scan
-            i = j
-            if column[
-                1 + j] != " ":  # iterates through the number of scans, only scans in if there is appropriate Y data
-                # (skips over blank entries)
-                x_axis_list[i].append(float(column[0]))  # x axis is always the same
-                y_axis_list[i].append(float(column[1 + j]))  # gives the proper Y axis
-        read_data(f, scans, x_axis_list, y_axis_list, dictionary)
+        single_line_to_data(f, line, scans, x_axis_list, y_axis_list, dictionary)
+    else:
+        line_to_dict(line, dictionary, scans)
+        line = f.readline()  # reads an extra line forwards
+    if re.match("\d",
+                line):  # if the header is short then the next line will contain digits at the start owing to it
+        # being numerical
+        short_header = True  # shortheader is set to true
+        single_line_to_data(f, line, scans, x_axis_list, y_axis_list, dictionary)
     # adds the remaining header lines into the header
     if not short_header:
         for j in range(19):
-            line_to_dict(f, dictionary, scans)
+            line = f.readline()
+            line_to_dict(line, dictionary, scans)
         # skips a line if the header is long
         line = f.readline()
         # reads the data into a list which is in turn added into the dictionary under the key of "data"
@@ -90,8 +89,7 @@ def get_scans(fn, x_axis_list, y_axis_list):
 
 
 # reads a line of the file provided into the dictionary
-def line_to_dict(f, dictionary, scans):
-    line = f.readline()
+def line_to_dict(line, dictionary, scans):
     line = line.strip()
     column = line.split(detect(line))
     line_data = []
@@ -110,3 +108,16 @@ def get_title_length(f, checklist):
         else:
             title_length = title_length + 1
     return title_length
+
+
+def single_line_to_data(f, line, scans, x_axis_list, y_axis_list, dictionary):
+    # reads the data into the dictionary
+    column = line.split(detect(line))  # breaks the line up
+    for j in range(scans):  # reads the data into the arrays created for each scan
+        i = j
+        if column[
+            1 + j] != " ":  # iterates through the number of scans, only scans in if there is appropriate Y data
+            # (skips over blank entries)
+            x_axis_list[i].append(float(column[0]))  # x axis is always the same
+            y_axis_list[i].append(float(column[1 + j]))  # gives the proper Y axis
+    read_data(f, scans, x_axis_list, y_axis_list, dictionary)

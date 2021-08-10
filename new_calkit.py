@@ -18,8 +18,6 @@ class NewKitUi():
         self.master = master
         self.master.title("Load New Calkit")
         self.master.geometry("1000x500")
-        self.namelabel = tkinter.StringVar(self.master)
-        self.namelabel.set("No kit name selected")
         self.make_calibration_kit()
         self.name = ""
         self.filename = ""
@@ -34,8 +32,6 @@ class NewKitUi():
 
     def show_page_widgets(self):
         self.frame = tkinter.Frame(self.master)
-        self.frame.label = tkinter.Label(self.frame, textvariable=self.namelabel)
-        self.frame.label.grid()
         self.quit_button = tkinter.Button(
             self.frame, text="close window",
             command=self.close_window)
@@ -86,7 +82,7 @@ class NewKitUi():
         self.namelabel.set("current kit name: " + self.name)
 
     # opens the selected file and loads it into the "material" container, plots it for reference
-    def open_file(self, filename, kit):
+    def plot_file(self, filename, kit):
         fname = pathlib.Path(filename)
         date = datetime.date.fromtimestamp(fname.stat().st_ctime)
         kit.add_scan(filename, self.type, date)
@@ -110,5 +106,5 @@ class NewKitUi():
         if filename != "":  # if a file is selected then the filename property is set to it
             self.label.config(text="selected file: " + os.path.basename(filename))
             self.filename = filename
-            self.open_file(self.filename, self.kit)
+            self.plot_file(self.filename, self.kit)
             self.save_file["state"] = NORMAL

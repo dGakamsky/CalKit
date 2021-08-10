@@ -1,0 +1,67 @@
+# the mathematical operations happen here
+import numpy as np
+from scipy.interpolate import UnivariateSpline
+from scipy.optimize import fmin
+from matplotlib import pyplot as plt
+
+# generates a univariate spline
+def getspline(data):
+    spl_list = []
+    for i in range(len(data["data"])):
+        x = data["data"][i][0]
+        y = data["data"][i][1]
+        new_y = normalize(y)
+        spl = UnivariateSpline(x, new_y)
+        spl.set_smoothing_factor(
+            0.00001)  # low smoothing factor means that it serves as a close representation of the original data
+        spl_list.append(spl)
+    return spl_list
+
+
+# normalizes the data for the Y axis for more effective plotting
+def normalize(l):
+    norm = (l - np.min(l)) / (np.max(l) - np.min(l))
+    return norm
+
+
+def dointersect(scan1, scan2):
+    scan1_x = scan1[0]
+    scan2_x = scan2[0]
+    intersection = set(scan1_x).intersection(scan2_x)
+    indices_a_x = [scan1[0].index(x) for x in intersection]
+    indices_b_x = [scan2[0].index(x) for x in intersection]
+    indices_a_y = []
+    indices_b_y = []
+    for i in indices_a_x:
+        indices_a_y.append(scan1[1][i])
+    for i in indices_b_x:
+        indices_b_y.append(scan2[1][i])
+    get_rsd(indices_a_y, indices_b_y)
+    plot(scan1)
+    plot(scan2)
+
+def get_rsd(x, y):
+    # rstd_norm(0, x,y)
+    g = np.ones(len(x)).reshape(-1,1)
+    y2 = fmin(func=rstd_norm, x0=x, args=(x, y))
+    print(y2)
+
+
+
+def rstd_norm(k_scaling, intensities_scan1, intensities_scan2):
+    rstd_norm_var = []
+    lists = zip(intensities_scan1, intensities_scan2)
+    difference = []
+    for list1_i, list2_i in lists:
+        difference.append(list1_i - list2_i)
+    for i in range(len(difference)):
+        j = difference[i]
+        rstd_norm_var.append((j * k_scaling) ** 2/intensities_scan1[i])
+    var = np.sum(rstd_norm_var)
+    #print(k_scaling)
+    return k_scaling
+
+def plot(scan):
+    plt.plot(scan[0], scan[1])
+
+# def scan_scaled():

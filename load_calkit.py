@@ -12,16 +12,12 @@ import datetime
 import pathlib
 
 
-
 class LoadKitUi():
     def __init__(self, master, library):
-        # super().__init__(master)
         self.master = master
-        self.master.title("Load New Calkit")
+        self.master.title("Update Calkit data")
         self.master.geometry("1000x500")
         self.namelabel = ""
-        self.namelabel = tkinter.StringVar()
-        self.namelabel.set("No kit name selected")
         self.kit = CalKit()
         self.name = ""
         self.filename = ""
@@ -41,28 +37,28 @@ class LoadKitUi():
             self.frame, text="close window",
             command=self.close_window)
         self.v = tkinter.StringVar(self.master, "1")
-        tkinter.Label(self.frame, text="Type of lamp material :").grid(row=1, column=0, sticky=W,
-                                                                        padx=10, pady=10, ipadx=5, ipady=5)
-        tkinter.Radiobutton(self.frame, text="Deuterium Scan", variable=self.v, value="d",
-                            command=lambda: self.set_type("d")).grid(row=1, column=1,
-                                                                     padx=10, pady=10, ipadx=5, ipady=5)
-        tkinter.Radiobutton(self.frame, text="Tungsten Scan", variable=self.v, value="t",
-                            command=lambda: self.set_type("t")).grid(row=1, column=2,
-                                                                     padx=10, pady=10, ipadx=5, ipady=5)
+        tkinter.Label(self.frame, text="Type of lamp material :").grid(row=2, column=0, sticky=W,
+                                                                       padx=10, pady=10, ipadx=5, ipady=5)
+        self.d_type = tkinter.Radiobutton(self.frame, text="Deuterium Scan", variable=self.v, value="d",
+                            command=lambda: self.set_type("d"), state=DISABLED)
+        self.d_type.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+        self.t_type=tkinter.Radiobutton(self.frame, text="Tungsten Scan", variable=self.v, value="t",
+                            command=lambda: self.set_type("t"), state=DISABLED)
+        self.t_type.grid(row=2, column=2, padx=10, pady=10, ipadx=5, ipady=5)
         tkinter.Label(self.frame, text="Select file with update data :").grid(row=3, column=0, sticky=W,
-                                                                               padx=10, pady=10, ipadx=5,
-                                                                               ipady=5)
+                                                                              padx=10, pady=10, ipadx=5,
+                                                                              ipady=5)
         self.browse_file = tkinter.Button(self.frame, text="browse files", state=DISABLED,
-                                     command=lambda: self.open_file_browser())  # searches files for input file
+                                          command=lambda: self.open_file_browser())  # searches files for input file
         self.browse_file.grid(row=3, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         options = self.cklist
         if not options:
             options = ["empty"]
         self.label = tkinter.Label(self.frame, text="Selected calibration kit :")
-        self.label.grid(row=2, column=0, sticky=W, padx=10, pady=10, ipadx=5, ipady=5)
+        self.label.grid(row=1, column=0, sticky=W, padx=10, pady=10, ipadx=5, ipady=5)
         self.question_menu = tkinter.OptionMenu(self.frame, self.value_inside, *options,
-                                           command=lambda x=None: self.select_existing_file(self.library))
-        self.question_menu.grid(row=2, column=1, padx=10, pady=10, ipadx=5, ipady=5)
+                                                command=lambda x=None: self.select_existing_file())
+        self.question_menu.grid(row=1, column=1, padx=10, pady=10, ipadx=5, ipady=5)
         self.save_file = tkinter.Button(self.frame, text="save",
                                         state=DISABLED,
                                         command=lambda: save_file(
@@ -108,8 +104,17 @@ class LoadKitUi():
 
     def set_type(self, t):
         self.type = t
+        self.plot_file()
+
+    def plot_file(self):
+        library = self.library.library
         # checks for the presence of a name and filename, and if found enables loading the scandata
-        return self.type
+        try:
+            outputer.plot_ck(library[self.name].materials[self.type], self.subplot)
+        except KeyError:
+            outputer.error_message("please select a material before selecting a file")
+        self.canvas.draw()
+        self.browse_file["state"] = NORMAL
 
     def open_file_browser(self):
         filename = askopenfilename(initialdir="/Users/David/PycharmProjects/CalKit/scans",
@@ -122,24 +127,15 @@ class LoadKitUi():
             self.open_file(self.filename, self.kit)
 
     # the command that responds to the dropdown menu
-    def select_existing_file(self, lib):
+    def select_existing_file(self):
         self.name = self.value_inside.get()  # sets the name of the current kit to the selected kit
-        self.changetext()
-        library = lib.library
+        library = self.library.library
         # fpr validation
         # Sets the current kit data equal to the kit data from the selected kit
         self.kit = library[self.name]
         self.kit.materials["t"] = library[self.name].materials["t"]
         self.kit.materials["d"] = library[self.name].materials["d"]
-        # plots the selected kits data if appropriate
-        try:
-            outputer.plot_ck(library[self.name].materials[self.type], self.subplot)
-        except KeyError:
-            outputer.error_message("please select a material before selecting a file")
-        self.canvas.draw()
-        self.label.config(text="Selected calibration kit: " + self.name)
-        self.browse_file["state"] = NORMAL
-        return self.name, self.kit  # returns the kit
-
-    def changetext(self):
-        self.namelabel.set("current kit name: " + self.name)
+        self.d_type["state"] = NORMAL
+        self.t_type["state"] = NORMAL
+        if self.type != "":
+            self.plot_file()

@@ -15,13 +15,11 @@ def print_to_file(name, mat):
     # delimiter is set to space, this could be changed later
     file.writelines("labels" + ", " + name + "\n")
     # generates the data for the file
-    end = mat.x_end
-    start = mat.x_start
+    end = int(mat.x_end)
+    start = int(mat.x_start)
     step = int(mat.step)
-
-    steps = int((end[0] - start[0]) / step) + 1
-    x = np.linspace(mat.x_start[0], mat.x_end[0],
-                    num=steps)
+    steps = int((end - start) / step) + 1
+    x = np.linspace(start, end, num=steps)
     for i in range(len(mat.spline)):
         spl = mat.spline[i]
         y.append(spl(x))
@@ -52,18 +50,18 @@ def dump_ck_list(self):
         pickle.dump(self.library, openfile)
 
 
-def plot_ck(mat,plt):
+def plot_ck(mat, plt):
     if len(mat.spline) != 0:
         plt.clear()
         for i in range(len(mat.spline)):
             x = []
             y = []
             date = "no date loaded"
-            if mat.date != None:
+            if mat.date is not None:
                 date = mat.date
-            texttitle = str("scan created date: " + str(date))
-            end = mat.x_end[i]
-            start = mat.x_start[i]
+            text_title = str("scan created date: " + str(date))
+            end = int(mat.x_end)
+            start = int(mat.x_start)
             step = mat.step
             steps = int((end - start) / step)  # determines the number of data-points
             x = np.linspace(mat.x_start, mat.x_end,
@@ -71,8 +69,7 @@ def plot_ck(mat,plt):
             try:
                 spl = mat.spline[i]
                 y = spl(x)  # gets the Y axis data
-                #plt.title(date)
-                plt.set(xlabel="Wavelength, nm", ylabel="Intensity, a.u.", title=texttitle)
+                plt.set(xlabel="Wavelength, nm", ylabel="Intensity, a.u.", title=text_title)
                 plt.plot(x, y)  # plots it
             except TypeError:
                 error_message("This calibration kit does not have a scan of the selected type stored")
@@ -83,3 +80,10 @@ def plot_ck(mat,plt):
 
 def error_message(text):
     e.msgbox(text)
+
+
+def plot_scans(scans):
+    for scan in scans:
+        plt.plot(scan[0][0], scan[0][1], label=scan[1])
+    plt.legend()
+    plt.show()

@@ -14,30 +14,28 @@ class Lamp_Material:
         return self._spline
 
     @spline.setter
-    #receives a list of splines from the scan reader
+    # receives a list of splines from the scan reader
     def spline(self, spline):  # when a spline is received the X start and X end are also set, as they are obtained from
         # the spline object
         self._spline = spline
-        self.x_start = spline
-        self.x_end = spline
+        self.x_start = (spline[0].get_knots()[0])
+        self.x_end = (spline[0].get_knots()[-1])
 
     @property
     def x_start(self):
         return self._x_start
 
     @x_start.setter
-    def x_start(self, spline):
-        for i in range(len(spline)):
-            self._x_start.append(spline[i].get_knots()[0])
+    def x_start(self, start):
+        self._x_start = start
 
     @property
     def x_end(self):
         return self._x_end
 
     @x_end.setter
-    def x_end(self, spline):
-        for i in range(len(spline)):
-            self._x_end.append(spline[i].get_knots()[-1])
+    def x_end(self, end):
+        self._x_end = end
 
     @property
     def step(self):
@@ -63,9 +61,10 @@ class Lamp_Material:
     def type(self, t):
         self._type = t
 
+    def set_start(self):
+        self.x_start = (self.spline[0].get_knots()[0])
+
     def print(self):
         print(self.spline)
         print(self.x_start)
         print(self.x_end)
-
-
